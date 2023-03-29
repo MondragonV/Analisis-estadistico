@@ -1,0 +1,90 @@
+% Importar los datos desde el archivo Excel
+data = readtable('Datos_Encuesta.xlsx');
+
+% Obtener las medidas de tendencia central y desviación estándar para ambos datasets
+mu_estatura = mean(data.Estatura);
+sigma_estatura = std(data.Estatura);
+mu_calzado = mean(data.Calzado);
+sigma_calzado = std(data.Calzado);
+
+% Imprimir los resultados
+fprintf('Estatura: mu_estatura = %f, sigma_estatura = %f\n', mu_estatura, sigma_estatura);
+fprintf('Calzado: mu_calzado = %f, sigma_calzado = %f\n', mu_calzado, sigma_calzado);
+
+% % Graficar histogramas y funciones gaussianas
+% figure;
+% histogram(datos.Estatura,'Normalization','pdf');
+% hold on;
+% x_estatura = min(datos.Estatura):0.01:max(datos.Estatura);
+% y_estatura = pdf(pd_estatura,x_estatura);
+% plot(x_estatura,y_estatura,'LineWidth',2);
+% title('Distribución de estatura');
+% legend('Histograma','Función Gaussiana');
+% xlabel('Estatura');
+% ylabel('Frecuencia relativa');
+% 
+% figure;
+% histogram(datos.Calzado,'Normalization','pdf');
+% hold on;
+% x_calzado = min(datos.Calzado):0.01:max(datos.Calzado);
+% y_calzado = pdf(pd_calzado,x_calzado);
+% plot(x_calzado,y_calzado,'LineWidth',2);
+% title('Distribución de talla de calzado');
+% legend('Histograma','Función Gaussiana');
+% xlabel('Talla de calzado');
+% ylabel('Frecuencia relativa');
+%
+
+% % Obtener los valores de la estatura y la talla de calzado
+% estatura = data.Estatura;
+% calzado = data.Calzado;
+% 
+% % Encontrar la aproximación lineal usando polyfit
+% p = polyfit(estatura, calzado, 1);
+% 
+% % Graficar los puntos de datos y la línea de la aproximación lineal
+% scatter(estatura, calzado);
+% hold on;
+% plot(estatura, polyval(p, estatura), 'r');
+% xlabel('Estatura');
+% ylabel('Talla de calzado');
+% legend('Puntos de datos', 'Aproximación lineal');
+
+
+% Dividir los datos por sexo
+hombres = data(strcmp(data.Sexo, 'H'), :);
+mujeres = data(strcmp(data.Sexo, 'M'), :);
+
+% Ajustar una línea recta a cada subgrupo
+if numel(hombres.Estatura) > 1
+    coef_hombres = polyfit(hombres.Estatura, hombres.Calzado, 1);
+else
+    coef_hombres = NaN(1,2);
+end
+if numel(mujeres.Estatura) > 1
+    coef_mujeres = polyfit(mujeres.Estatura, mujeres.Calzado, 1);
+else
+    coef_mujeres = NaN(1,2);
+end
+
+% Crear una figura para graficar los resultados
+figure;
+hold on;
+
+% Graficar los puntos de cada subgrupo
+scatter(hombres.Estatura, hombres.Calzado, 'DisplayName', 'Hombres');
+scatter(mujeres.Estatura, mujeres.Calzado, 'DisplayName', 'Mujeres');
+
+% Graficar las líneas rectas ajustadas a cada subgrupo
+x = linspace(min(data.Estatura), max(data.Estatura), 100);
+if ~isnan(coef_hombres)
+    plot(x, polyval(coef_hombres, x), 'b--', 'DisplayName', 'Ajuste lineal hombres');
+end
+if ~isnan(coef_mujeres)
+    plot(x, polyval(coef_mujeres, x), 'r--', 'DisplayName', 'Ajuste lineal mujeres');
+end
+
+% Agregar etiquetas y leyenda a la figura
+xlabel('Estatura');
+ylabel('Talla de calzado');
+legend('show');
